@@ -10,7 +10,9 @@
 
 #include "main.h"
 #define MAX_BUFFER_SIZE 30
+#define TIME_OUT 100
 
+extern uint8_t temp;
 extern uint8_t buffer_flag;
 extern int time;
 extern int time_flag;

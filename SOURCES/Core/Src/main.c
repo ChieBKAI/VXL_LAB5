@@ -52,15 +52,15 @@ static void MX_TIM2_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
+ADC_HandleTypeDef hadc1;
+TIM_HandleTypeDef htim2;
+UART_HandleTypeDef huart2;
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t temp = 0;
-uint8_t buffer[30];
-uint8_t index_buffer = 0;
-uint8_t buffer_flag = 0;
+
 /* USER CODE END 0 */
 
 /**
@@ -99,6 +99,8 @@ int main(void)
   HAL_ADC_Start(&hadc1);
   /* USER CODE BEGIN 2 */
 
+  HAL_UART_Receive_IT(&huart2, &temp, 1);
+  HAL_GPIO_WritePin(BLINKY_LED_GPIO_Port, BLINKY_LED_Pin, 1); //turn off led
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -106,10 +108,10 @@ int main(void)
   while (1)
   {
 	  if (buffer_flag == 1) {
-		  command_parser_fsm(&buffer);
+		  command_parser_fsm();
 		  buffer_flag = 0;
 	  }
-	  uart_communication_fsm(&index_buffer);
+	  uart_communication_fsm();
   }
   /* USER CODE END 3 */
 }
@@ -305,23 +307,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	time--;
-	if (time <= 0) {
+	if (time > 0) {
+		time--;
+	}else {
 		time_flag = 1;
 	}
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance == huart2.Instance) {
-		HAL_UART_Receive_IT(&huart2, &temp, 1);
-		buffer[index_buffer++] = temp;
-		if(index_buffer == 30) {
-			index_buffer = 0;
-		}
-		buffer_flag = 1;
-		HAL_GPIO_TogglePin(BLINKY_LED_GPIO_Port, BLINKY_LED_Pin);
-	}
-}
+
 /* USER CODE END 4 */
 
 /**
