@@ -31,10 +31,17 @@ uint8_t mode2_code[] = "!OK#";
 char str[20];
 uint32_t ADC_value = 0;
 
+void clear_buffer() {
+	for (int i = 0; i < MAX_BUFFER_SIZE; i++) {
+		buffer[i] = 0;
+	}
+	index_buffer = 0;
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance == huart2.Instance) {
 		if (temp == '!') {
-			index_buffer = 0;
+			clear_buffer();
 		}
 		buffer[index_buffer++] = temp ;
 		if( index_buffer == 30) {
@@ -45,6 +52,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 		HAL_UART_Receive_IT(&huart2, &temp, 1);
 	}
 }
+
 
 void command_parser_fsm () {
 	for (int i = 0; i < sizeof(mode1_code); i++) {
